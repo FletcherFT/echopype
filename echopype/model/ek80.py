@@ -105,8 +105,8 @@ class ModelEK80(ModelBase):
                 range_bin = ds_beam.range_bin
             range_meter = range_bin * st - \
                 ds_beam.transmit_duration_nominal * self.sound_speed / 2  # DataArray [frequency x range_bin]
-            range_meter = range_meter.where(range_meter > 0, other=0).transpose()
-            return range_meter
+            # range_meter = range_meter.where(range_meter > 0, other=0).transpose()
+            return range_meter.transpose()
 
     def calc_transmit_signal(self):
         """Generate transmit signal as replica for pulse compression.
@@ -264,7 +264,7 @@ class ModelEK80(ModelBase):
             # Only 1 gain value is given provided per channel
             Gfc = ds_beam.gain_correction
             ranges = self.calc_range(range_bins=prx.shape[2])
-            ranges = ranges.where(ranges >= 1, other=1)
+            # ranges = ranges.where(ranges >= 1, other=1)
             if mode == 'Sv':
                 Sv = (
                       10 * np.log10(prx) + 20 * np.log10(ranges) +
@@ -284,7 +284,7 @@ class ModelEK80(ModelBase):
             if mode == 'Sv':
                 Sv.name = 'Sv'
                 Sv = Sv.to_dataset()
-                Sv['range'] = (('frequency', 'range_bin'), ranges)
+                Sv['ranges'] = (('frequency', 'range_bin'), ranges)
                 self.Sv = Sv
                 if save:
                     self.Sv_path = self.validate_path(save_path, save_postfix)
